@@ -1,6 +1,6 @@
 fork from this [repo](https://bitbucket.org/TheDeadOne/django-robokassa/src/default/) 
 
-================
+
 django-robokassa
 ================
 
