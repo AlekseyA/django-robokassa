@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- 
-from hashlib import md5
+from hashlib import md5, sha256
 from django import forms
 try:
     from urllib import urlencode
@@ -41,7 +41,7 @@ class BaseRobokassaForm(forms.Form):
         return extra
 
     def _get_signature(self):
-        return md5(self._get_signature_string().encode()).hexdigest().upper()
+        return sha256(self._get_signature_string().encode()).hexdigest().upper()
 
     def _get_signature_string(self):
         raise NotImplementedError
@@ -62,7 +62,7 @@ class RobokassaForm(BaseRobokassaForm):
     Desc = forms.CharField(max_length=100, required=False)
 
     # контрольная сумма MD5
-    SignatureValue = forms.CharField(max_length=32)
+    SignatureValue = forms.CharField(max_length=64)
 
     # предлагаемая валюта платежа
     IncCurrLabel = forms.CharField(max_length=10, required=False)
@@ -127,7 +127,7 @@ class ResultURLForm(BaseRobokassaForm):
     '''Форма для приема результатов и проверки контрольной суммы '''
     OutSum = forms.CharField(max_length=15)
     InvId = forms.IntegerField(min_value=0)
-    SignatureValue = forms.CharField(max_length=32)
+    SignatureValue = forms.CharField(max_length=64)
 
     def clean(self):
         try:
@@ -141,7 +141,7 @@ class ResultURLForm(BaseRobokassaForm):
 
     def _get_signature_string(self):
         _val = lambda name: unicode(self.cleaned_data[name])
-        standard_part = ':'.join([_val('OutSum'), _val('InvId'), PASSWORD2])
+        standard_part = ':'.join([_val('MrchLogin'), _val('OutSum'), _val('InvId'), PASSWORD1])
         return self._append_extra_part(standard_part, _val)
 
 
